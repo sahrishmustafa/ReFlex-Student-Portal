@@ -24,7 +24,7 @@ The repository will follow a structured approach:
 - `/frontend/` - UI and UX implementation
 - `/docs/` - Documentation and meeting notes
 - `/tests/` - Automated tests and testing scripts
-Note: The repository structure mentioned above may change in each sprint.
+# Note: The repository structure mentioned above may change in each sprint.
 
 ## Development Workflow
 We are following an **Agile Scrum** methodology. The project will be divided into multiple sprints, with each sprint delivering a set of features.
