@@ -1,6 +1,5 @@
 from pywebio.input    import select, input
 from pywebio.output   import put_markdown, put_text, put_buttons, put_table, clear
-from ui.faculty_ui    import faculty_dashboard
 
 # Dummy course→sections mapping
 dummy_faculty_courses = {
@@ -11,16 +10,17 @@ dummy_faculty_courses = {
 
 # Dummy section-specific students
 dummy_students = {
-    'CS101 - Intro to Programming': { 'A': ['Alice','Bob'], 'B': ['Charlie'] },
-    'MATH201 - Calculus II':             { 'A': ['David','Eva'] },
-    'ENG305 - Technical Writing':        { 'A': ['Frank'], 'C': ['Grace','Hannah'] },
+    'CS101 - Intro to Programming': {'A': ['Alice','Bob'], 'B': ['Charlie']},
+    'MATH201 - Calculus II':             {'A': ['David','Eva']},
+    'ENG305 - Technical Writing':        {'A': ['Frank'], 'C': ['Grace','Hannah']},
 }
 
 # In-memory grade store
 GRADES = []
 
-def handle_enter_grade(course, section):
-    """Prompt for one student’s grade under course/section."""
+
+def handle_enter_grade(course, section, back_to_dashboard):
+    """Prompt for one student’s grade under course/section, then confirm."""
     put_markdown(f"### ✏️ Enter Grades for {course} (Section {section})")
     student    = select('Student', dummy_students[course][section])
     grade_type = select('Grade Type', ['Assignment', 'Quiz', 'Exam'])
@@ -39,12 +39,15 @@ def handle_enter_grade(course, section):
     clear()
     put_text(f"✅ Recorded {marks} ({grade_type}) for {student} @ {course} (Sec {section})")
     put_buttons(
-      ['🔙 Back to Grade Entry', '🏠 Back to Dashboard'],
-      onclick=[lambda: enter_student_grades(),
-               lambda: faculty_dashboard()]
+        ['🔙 Back to Grade Entry', '🏠 Back to Dashboard'],
+        onclick=[
+            lambda: enter_student_grades(back_to_dashboard),
+            back_to_dashboard
+        ]
     )
 
-def enter_student_grades():
+
+def enter_student_grades(back_to_dashboard):
     """Dashboard: list course×section with Enter buttons."""
     clear()
     put_markdown('# 📝 Enter Student Grades')
@@ -55,8 +58,10 @@ def enter_student_grades():
                 course,
                 sec,
                 put_buttons(
-                  ['Enter'],
-                  onclick=[lambda c=course, s=sec: handle_enter_grade(c, s)]
+                    ['Enter'],
+                    onclick=[
+                        lambda c=course, s=sec: handle_enter_grade(c, s, back_to_dashboard)
+                    ]
                 )
             ])
     put_table([['Course', 'Section', 'Action'], *rows])
