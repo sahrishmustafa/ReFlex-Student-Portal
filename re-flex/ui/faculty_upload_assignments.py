@@ -1,7 +1,6 @@
-from pywebio.input import select, input, textarea, file_upload
-from pywebio.output import put_markdown, put_text, put_buttons, put_table, clear
-from datetime import date
-from ui.faculty_ui    import faculty_dashboard
+from pywebio.input    import select, input, textarea, file_upload
+from pywebio.output   import put_markdown, put_text, put_buttons, put_table, clear
+from datetime         import date
 
 # Dummy data for courses and sections
 dummy_faculty_courses = {
@@ -14,8 +13,8 @@ dummy_faculty_courses = {
 ASSIGNMENTS = {}
 
 
-def handle_upload_assignment(course, section):
-    """Upload a single assignment for given course and section."""
+def handle_upload_assignment(course, section, back_to_dashboard):
+    """Upload a single assignment for given course and section, then show confirmation."""
     put_markdown(f"### 📤 Upload Assignment for {course} (Section {section})")
     title       = input('Assignment Title')
     description = textarea('Description', rows=3)
@@ -35,28 +34,30 @@ def handle_upload_assignment(course, section):
     # Confirmation screen
     clear()
     put_text(f"✅ Assignment '{title}' uploaded for {course} (Sec {section})")
-    put_buttons(
-      ['🔙 Back to Assignments', '🏠 Back to Dashboard'],
-      onclick=[lambda: upload_assignments(),
-               lambda: faculty_dashboard()]
-    )
+    put_buttons([
+        '🔙 Back to Assignments',
+        '🏠 Back to Dashboard'
+    ], onclick=[
+        lambda: upload_assignments(back_to_dashboard),
+        back_to_dashboard
+    ])
 
 
-def upload_assignments():
+def upload_assignments(back_to_dashboard):
     """Dashboard listing courses × sections for assignment upload."""
     clear()
     put_markdown('# 📚 Upload Assignments')
     rows = []
     for course, sections in dummy_faculty_courses.items():
         for section in sections:
+            # capture course and section in lambda, and pass back_to_dashboard
             rows.append([
                 course,
                 section,
-                put_buttons(
-                    ['Upload'],
-                    onclick=[lambda c=course, s=section: handle_upload_assignment(c, s)]
-                )
+                put_buttons([
+                    'Upload'
+                ], onclick=[
+                    lambda c=course, s=section: handle_upload_assignment(c, s, back_to_dashboard)
+                ])
             ])
     put_table([['Course', 'Section', 'Action'], *rows])
-
-# To integrate, import and call upload_assignments() from your faculty UI dispatcher.
