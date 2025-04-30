@@ -1,7 +1,6 @@
-from pywebio.input    import select, checkbox
+from pywebio.input    import checkbox
 from pywebio.output   import put_markdown, put_text, put_buttons, put_table, clear
 from datetime         import date
-from ui.faculty_ui    import faculty_dashboard
 
 # Dummy course→sections mapping
 dummy_faculty_courses = {
@@ -16,18 +15,18 @@ STUDENTS = ['Alice Johnson', 'Bob Smith', 'Charlie Lee']
 # In-memory attendance store
 ATTENDANCE = {}
 
-def handle_mark_attendance(course, section):
-    """Mark present/absent for one lecture."""
+
+def handle_mark_attendance(course, section, back_to_dashboard):
+    """Mark present/absent for one lecture, then show confirmation."""
     put_markdown(f"### 🗓️ Mark Attendance for {course} (Sec {section})")
     lecture_date = date.today().isoformat()
     present      = checkbox('Select Present Students', STUDENTS)
 
     # Save dummy
-    ATTENDANCE \
-      .setdefault(course, {}) \
-      .setdefault(section, {})[lecture_date] = present
+    ATTENDANCE.setdefault(course, {}) \
+              .setdefault(section, {})[lecture_date] = present
 
-    # Compute absent for display
+    # Compute absent
     absent = [s for s in STUDENTS if s not in present]
 
     # Confirmation + back
@@ -36,12 +35,15 @@ def handle_mark_attendance(course, section):
     put_text(f"• Present: {', '.join(present) or '—'}")
     put_text(f"• Absent:  {', '.join(absent)  or '—'}")
     put_buttons(
-      ['🔙 Back to Attendance', '🏠 Back to Dashboard'],
-      onclick=[lambda: mark_attendance(),
-               lambda: faculty_dashboard()]
+        ['🔙 Back to Attendance', '🏠 Back to Dashboard'],
+        onclick=[
+            lambda: mark_attendance(back_to_dashboard),
+            back_to_dashboard
+        ]
     )
 
-def mark_attendance():
+
+def mark_attendance(back_to_dashboard):
     """Dashboard listing course×section for attendance marking."""
     clear()
     put_markdown('# ✅ Mark Attendance')
@@ -53,7 +55,7 @@ def mark_attendance():
                 sec,
                 put_buttons(
                   ['Mark'],
-                  onclick=[lambda c=course, s=sec: handle_mark_attendance(c, s)]
+                  onclick=[lambda c=course, s=sec: handle_mark_attendance(c, s, back_to_dashboard)]
                 )
             ])
     put_table([['Course', 'Section', 'Action'], *rows])
