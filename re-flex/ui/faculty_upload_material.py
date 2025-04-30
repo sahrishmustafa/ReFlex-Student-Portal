@@ -1,60 +1,55 @@
-from pywebio.input import file_upload
-from pywebio.output import put_markdown, put_table, put_text, put_buttons, clear
-from ui.faculty_ui    import faculty_dashboard
+from pywebio.input    import file_upload
+from pywebio.output   import put_markdown, put_text, put_table, put_buttons, clear
 
 # Dummy data for courses and sections
 dummy_faculty_courses = {
     'CS101 - Intro to Programming': ['A', 'B'],
-    'MATH201 - Calculus II': ['A'],
-    'ENG305 - Technical Writing': ['A', 'C']
+    'MATH201 - Calculus II':             ['A'],
+    'ENG305 - Technical Writing':        ['A', 'C'],
 }
 
 # In-memory store for uploaded materials
 COURSE_MATERIALS = {}
 
-def upload_course_material(course, section):
-    """Handle actual file upload and show confirmation."""
-    put_markdown(f"### Upload Materials for {course} (Section {section})")
+
+def handle_upload_course_material(course, section, back_to_dashboard):
+    """Handle file upload and show confirmation."""
+    put_markdown(f"### 📂 Upload Materials for {course} (Sec {section})")
     materials = file_upload(
         'Select Files (PDF, PPTX, DOCX)',
         accept='.pdf,.pptx,.docx',
         multiple=True
     )
 
-    # Dummy save logic
-    COURSE_MATERIALS.setdefault(course, {}).setdefault(section, []).extend(
-        [m['filename'] for m in materials]
-    )
+    COURSE_MATERIALS.setdefault(course, {}) \
+                    .setdefault(section, []) \
+                    .extend([m['filename'] for m in materials])
 
     # Confirmation screen
     clear()
-    put_text(f"✅ Materials for {course} (Section {section}) Uploaded Successfully!")
+    put_text(f"✅ Materials for {course} (Sec {section}) Uploaded Successfully!")
     put_buttons(
-      ['🔙 Back to Course Materials', '🏠 Back to Dashboard'],
-      onclick=[lambda: upload_course_materials(),
-               lambda: faculty_dashboard()]
+        ['🔙 Back to Materials', '🏠 Back to Dashboard'],
+        onclick=[
+            lambda: upload_course_materials(back_to_dashboard),
+            back_to_dashboard
+        ]
     )
 
 
-def upload_course_materials():
+def upload_course_materials(back_to_dashboard):
     """Display dashboard of courses × sections with upload actions."""
     clear()
-    put_markdown('# Upload Course Materials')
-    table_rows = []
-    for course, sections in dummy_faculty_courses.items():
-        for section in sections:
-            table_rows.append([
+    put_markdown('# 📚 Upload Course Materials')
+    rows = []
+    for course, secs in dummy_faculty_courses.items():
+        for sec in secs:
+            rows.append([
                 course,
-                section,
+                sec,
                 put_buttons(
                     ['Upload'],
-                    onclick=[lambda c=course, s=section: upload_course_material(c, s)]
+                    onclick=[lambda c=course, s=sec: handle_upload_course_material(c, s, back_to_dashboard)]
                 )
             ])
-
-    put_table([
-        ['Course', 'Section', 'Action'],
-        *table_rows
-    ])
-
-# To integrate, import and call upload_course_materials() from your main faculty UI dispatcher.
+    put_table([['Course', 'Section', 'Action'], *rows])
