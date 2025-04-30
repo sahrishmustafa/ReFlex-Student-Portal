@@ -1,4 +1,4 @@
-from pywebio.input    import select, input
+from pywebio.input    import select, input, NUMBER
 from pywebio.output   import put_markdown, put_text, put_buttons, put_table, clear
 
 # Dummy course→sections mapping
@@ -24,7 +24,7 @@ def handle_enter_grade(course, section, back_to_dashboard):
     put_markdown(f"### ✏️ Enter Grades for {course} (Section {section})")
     student    = select('Student', dummy_students[course][section])
     grade_type = select('Grade Type', ['Assignment', 'Quiz', 'Exam'])
-    marks      = input('Marks (numeric)', type=float)
+    marks      = input('Marks (numeric)', type=NUMBER)
 
     # Save dummy
     GRADES.append({
