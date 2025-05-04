@@ -1,2 +1,2 @@
 pywebio
-secure-smtplib
+yagmail
