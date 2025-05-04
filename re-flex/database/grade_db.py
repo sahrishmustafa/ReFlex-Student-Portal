@@ -1,10 +1,13 @@
-# database/grade_db.py
+import sqlite3
 
-from models.grade import Grade
+def insert_grade(facultyid, course, section, studentid, type, total_marks, obtained_marks):
+    conn = sqlite3.connect('reflex.db')
+    cursor = conn.cursor()
 
-def get_grades(student_id):
-    return [
-        Grade("CS101", "Assignment 1", 85),
-        Grade("CS101", "Quiz 1", 78),
-        Grade("MA102", "Midterm Exam", 90)
-    ]
+    cursor.execute('''
+        INSERT INTO Grades (facultyid, studentid, type, total_marks, obtained_marks, course, section)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (facultyid, studentid, type, total_marks, obtained_marks, course, section))
+
+    conn.commit()
+    conn.close()
