@@ -1,42 +1,32 @@
-from pywebio.output import put_text, put_table, put_buttons, put_markdown
-from pywebio.input import input, file_upload
-
-from database.course_db import get_registered_courses
-from database.grade_db import get_grades
-from database.attendance_db import get_attendance_records
+from pywebio.output import put_buttons, put_markdown, clear
 
 def student_dashboard(user_email):
-    put_markdown(f"# 🎓 Welcome Student {user_email}!")
-    
+    # Import use case modules here (one per page)
+    from ui import student_course_registration, student_view_courses, student_view_grades
+    from ui import student_view_attendance, student_apply_scholarship, student_submit_assignment
+    from ui import student_download_material, student_give_feedback, student_view_calendar
+    from ui import student_drop_course
+
+    clear()
+    put_markdown(f"# 🎓 Student Dashboard ({user_email})")
+
     put_buttons(
-        ['View Registered Courses', 'View Grades', 'View Attendance', 'Submit Assignment'],
-        onclick=[lambda: view_registered_courses(user_email),
-                 lambda: view_grades(user_email),
-                 lambda: view_attendance(user_email),
-                 lambda: submit_assignment(user_email)]
+        [
+             'Register Courses', 'View Registered Courses', 'View Grades',
+             'Attendance Record', 'Scholarships & Aid', 'Submit Assignment',
+             'Download Materials', 'Give Feedback', 'Academic Calendar',
+             'Drop Courses'
+        ],
+        onclick=[
+            lambda: student_course_registration.course_registration(user_email, student_dashboard),
+            lambda: student_view_courses.view_registered_courses(user_email, student_dashboard),
+            lambda: student_view_grades.view_marks_and_grades(user_email, student_dashboard),
+            lambda: student_view_attendance.view_attendance(user_email, student_dashboard),
+            lambda: student_apply_scholarship.apply_scholarship(user_email, student_dashboard),
+            lambda: student_submit_assignment.submit_assignment(user_email, student_dashboard),
+            lambda: student_download_material.download_materials(user_email, student_dashboard),
+            lambda: student_give_feedback.give_feedback(user_email, student_dashboard),
+            lambda: student_view_calendar.view_calendar(user_email, student_dashboard),
+            lambda: student_drop_course.drop_courses(user_email, student_dashboard)
+        ]
     )
-
-def view_registered_courses(user_email):
-    courses = get_registered_courses(user_email)
-    put_markdown("## 📚 Your Registered Courses")
-    table_data = [["Course Code", "Course Name"]] + [[c.course_code, c.course_name] for c in courses]
-    put_table(table_data)
-
-def view_grades(user_email):
-    grades = get_grades(user_email)
-    put_markdown("## 📝 Your Grades")
-    table_data = [["Course Code", "Assessment", "Marks"]] + [[g.course_code, g.assessment_name, g.marks] for g in grades]
-    put_table(table_data)
-
-def view_attendance(user_email):
-    attendance = get_attendance_records(user_email)
-    put_markdown("## 📋 Your Attendance Record")
-    table_data = [["Course Code", "Attendance (%)"]] + [[a.course_code, a.attendance_percent] for a in attendance]
-    put_table(table_data)
-
-def submit_assignment(user_email):
-    put_markdown("## 📤 Submit Assignment")
-    course = input("Enter Course Code (e.g., CS101)")
-    assignment_file = file_upload("Upload your Assignment", accept="image/*,application/pdf")
-    
-    put_text(f"Successfully submitted assignment for {course}!")
