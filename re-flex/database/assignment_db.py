@@ -1,9 +1,13 @@
-# database/assignment_db.py
+import sqlite3
 
-from models.assignment import Assignment
+def insert_assignment(facultyid, course, section, title, description, due_date, file_info):
+    conn = sqlite3.connect('reflex.db')
+    cursor = conn.cursor()
 
-def get_assignments_for_student(student_id):
-    return [
-        Assignment("CS101", "Assignment 2", "2025-05-05"),
-        Assignment("MA102", "Homework 1", "2025-05-08")
-    ]
+    cursor.execute('''
+        INSERT INTO Assignment (facultyid, course, section, title, description, due_date, file)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (facultyid, course, section, title, description, due_date, file_info['content']))
+
+    conn.commit()
+    conn.close()
