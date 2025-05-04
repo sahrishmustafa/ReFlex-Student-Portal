@@ -78,3 +78,26 @@ def insert_course(courseid, title, credithours, description, semester):
     ''', (courseid, title, credithours, description, semester))
     conn.commit()
     conn.close()
+
+def get_available_courses_with_sections(semester):
+    conn = sqlite3.connect('reflex.db')  # Replace with actual DB path
+    cursor = conn.cursor()
+
+    # Join Course and Section tables
+    cursor.execute("""
+        SELECT 
+            Course.courseid, 
+            Course.title, 
+            Course.credithours, 
+            Course.description,
+            Section.sectionid, 
+            Section.student_strength
+        FROM Course
+        JOIN Section ON Course.courseid = Section.courseid
+        WHERE Course.semester = ?
+    """, (semester,))
+
+    results = cursor.fetchall()
+    conn.close()
+
+    return results

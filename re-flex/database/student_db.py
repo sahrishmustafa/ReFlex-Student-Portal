@@ -1,62 +1,155 @@
-# database/student_db.py
+import sqlite3
 
-from models.student import Student
+def get_student_semester(student_email):
+    # Returns the semester of a student based on their email.
+    conn = sqlite3.connect('reflex.db') 
+    cursor = conn.cursor()
 
-def get_student_by_id(student_id):
-    # Dummy hardcoded student
-    return Student(student_id, "John Doe", "john@example.com")
+    cursor.execute("SELECT semester FROM student WHERE email = ?", (student_email,))
+    result = cursor.fetchone()
 
-def get_available_courses(student_email):
-    # Return hardcoded available courses FOR THAT STUDENT
-    return [
-        {'id': 'CS101', 'name': 'Introduction to Computer Science'},
-        {'id': 'MATH204', 'name': 'Linear Algebra'},
-        {'id': 'PHY150', 'name': 'Mechanics and Waves'}
-    ]
+    conn.close()
+
+    if result:
+        return result[0]  # Semester
+    else:
+        return None  # Student not found
+
+def register_student_to_course(student_email, course_id, section_id):
+    conn = sqlite3.connect('reflex.db')  # Update with your actual DB path
+    cursor = conn.cursor()
+
+    # Get student ID from email
+    cursor.execute("SELECT id FROM Student WHERE email = ?", (student_email,))
+    student_id = cursor.fetchone()[0]
+
+    # Insert registration into Student_Course
+    cursor.execute('''
+        INSERT INTO Student_Course (studentid, courseid, sectionid)
+        VALUES (?, ?, ?)
+    ''', (student_id, course_id, section_id))
+
+    conn.commit()
+    conn.close()
+
 
 def get_registered_courses_for_student(student_email):
-    # Dummy data for now
-    return [
-        ['Course Code', 'Course Title', 'Instructor', 'Section'],
-        ['CS101', 'Introduction to Programming', 'Dr. Ahmed', 'A'],
-        ['MATH201', 'Linear Algebra', 'Prof. Khan', 'B'],
-        ['ENG301', 'Technical Writing', 'Ms. Sara', 'A'],
-    ]
+    # Connect to the database
+    conn = sqlite3.connect('reflex.db')  # Replace with your actual DB path
+    cursor = conn.cursor()
 
-def get_student_grades(email):
-    # Simulated dummy data for now
-    return [
-        ['Course', 'Assignment', 'Quiz', 'Midterm', 'Final', 'Total'],
-        ['Data Structures', 85, 90, 78, 88, 85.25],
-        ['Database Systems', 80, 85, 75, 90, 82.5],
-        ['Software Engineering', 88, 87, 80, 85, 85.0]
-    ]
+    # Get student ID using the email
+    cursor.execute("SELECT id FROM Student WHERE email = ?", (student_email,))
+    student_id = cursor.fetchone()
+    
+    if student_id is None:
+        return "Student not found."
+    
+    student_id = student_id[0]
 
-def get_attendance_data(email):
-    return [
-        ['Course', 'Total Classes', 'Attended', 'Attendance %'],
-        ['Data Structures', 30, 27, '90%'],
-        ['Database Systems', 28, 25, '89.3%'],
-        ['Software Engineering', 32, 29, '90.6%']
-    ]
+    # Query to get registered courses for the student, joining with Course and Student_Course tables
+    cursor.execute("""
+        SELECT c.courseid, c.title, sc.sectionid
+        FROM Student_Course sc
+        JOIN Course c ON sc.courseid = c.courseid
+        WHERE sc.studentid = ?
+    """, (student_id,))
+    
+    courses = cursor.fetchall()
 
-# database/student_db.py
+    conn.close()
 
-def get_course_materials(user_email):
-    # Return dummy course material data
-    return [
-        {
-            'course': 'CS101',
-            'filename': 'lecture1.pdf',
-            'content': b'%PDF-1.4 Dummy content of PDF file for Lecture 1'
-        },
-        {
-            'course': 'MA102',
-            'filename': 'notes_week2.txt',
-            'content': b'These are dummy notes for week 2.'
-        }
-    ]
+    # Format the result into a table-like structure
+    if courses:
+        courses_list = [['Course Code', 'Course Title', 'Section']] + courses
+        return courses_list
+    else:
+        return "No courses registered for this student."
 
+def get_student_grades(student_email):
+    conn = sqlite3.connect('reflex.db')  # Replace with your actual DB path
+    cursor = conn.cursor()
+
+    # Get student ID based on email
+    cursor.execute("SELECT id FROM Student WHERE email = ?", (student_email,))
+    student_id = cursor.fetchone()
+
+    if not student_id:
+        return "Student not found."
+
+    student_id = student_id[0]
+
+    # Get grades for the student
+    cursor.execute(''' 
+        SELECT course, type, total_marks, obtained_marks
+        FROM Grades 
+        WHERE studentid = ?
+    ''', (student_id,))
+
+    grades = cursor.fetchall()
+
+    # Organize the results into the desired format
+    result = [['Course', 'Assignment', 'Quiz', 'Midterm', 'Final']]
+    
+    courses = set([grade[0] for grade in grades])  # Unique courses
+    for course in courses:
+        # Initialize the grade row for each course
+        row = [course, None, None, None, None]
+
+        # Fill in the grades for each type (Assignment, Quiz, Midterm, Final)
+        for grade in grades:
+            if grade[0] == course:
+                if grade[1] == 'Assignment':
+                    row[1] = grade[3]
+                elif grade[1] == 'Quiz':
+                    row[2] = grade[3]
+                elif grade[1] == 'Midterm':
+                    row[3] = grade[3]
+                elif grade[1] == 'Final':
+                    row[4] = grade[3]
+
+        result.append(row)
+
+    conn.close()
+
+    return result
+
+def get_attendance_data(student_email):
+    conn = sqlite3.connect('reflex.db') 
+    cursor = conn.cursor()
+
+    # Get student ID based on email
+    cursor.execute("SELECT id FROM Student WHERE email = ?", (student_email,))
+    student_id = cursor.fetchone()
+
+    if not student_id:
+        return "Student not found."
+
+    student_id = student_id[0]
+
+    # Get attendance data for the student
+    cursor.execute(''' 
+        SELECT course, section, COUNT(*) AS total_classes, 
+               SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END) AS attended
+        FROM Attendance 
+        WHERE studentid = ?
+        GROUP BY course, section
+    ''', (student_id,))
+
+    attendance_data = cursor.fetchall()
+
+    result = [['Course', 'Total Classes', 'Attended', 'Attendance %']]
+
+    for data in attendance_data:
+        course = data[0]
+        total_classes = data[2]
+        attended = data[3]
+        attendance_percentage = (attended / total_classes) * 100
+        result.append([course, total_classes, attended, f'{attendance_percentage:.2f}%'])
+
+    conn.close()
+
+    return result
 
 def submit_feedback(user_email, feedback_text):
     # Just print to console for now (simulate storing it)
@@ -75,14 +168,27 @@ def get_academic_calendar():
     )
 
 
-def get_registered_courses(user_email):
-    # Return dummy registered courses for testing drop functionality
-    return [
-        {'id': 'CS101', 'name': 'Introduction to Computer Science'},
-        {'id': 'MA102', 'name': 'Calculus II'}
-    ]
+def drop_course(user_email, course_info):
+    conn = sqlite3.connect('reflex.db')  # Connect to your database
+    cursor = conn.cursor()
+    
+    # Step 1: Get student ID based on user email
+    cursor.execute("SELECT id FROM Student WHERE email = ?", (user_email,))
+    student = cursor.fetchone()
 
+    course_id = course_info.split(" - ")[0]
 
-def drop_course(user_email, course_id):
-    # Just print to console (simulate a delete operation)
-    print(f"{user_email} dropped course {course_id}")
+    if student:
+        student_id = student[0]
+        
+        # Step 2: Delete the course entry from Student_Course table
+        cursor.execute("""
+            DELETE FROM Student_Course
+            WHERE studentid = ? AND courseid = ?
+        """, (student_id, course_id))
+
+        conn.commit()  
+    else:
+        print("Student not found.")
+
+    conn.close()  # Close the connection
