@@ -1,3 +1,5 @@
+# ui/faculty_upload_assignments.py
+
 from pywebio.input    import select, input, textarea, file_upload
 from pywebio.output   import put_markdown, put_text, put_buttons, put_table, clear
 from datetime         import date
@@ -5,59 +7,60 @@ from datetime         import date
 # Dummy data for courses and sections
 dummy_faculty_courses = {
     'CS101 - Intro to Programming': ['A', 'B'],
-    'MATH201 - Calculus II': ['A'],
-    'ENG305 - Technical Writing': ['A', 'C']
+    'MATH201 - Calculus II':             ['A'],
+    'ENG305 - Technical Writing':        ['A', 'C'],
 }
 
 # In-memory store for assignments
 ASSIGNMENTS = {}
 
 
-def handle_upload_assignment(course, section, back_to_dashboard):
+def handle_upload_assignment(course, section, back_to_dashboard, user_email):
     """Upload a single assignment for given course and section, then show confirmation."""
-    put_markdown(f"### 📤 Upload Assignment for {course} (Section {section})")
+    put_markdown(f"### 📤 Upload Assignment for {course} (Sec {section}) by {user_email}")
     title       = input('Assignment Title')
     description = textarea('Description', rows=3)
     due_date    = input('Due Date (YYYY-MM-DD)', value=str(date.today()))
     attachment  = file_upload('Upload Attachment (PDF, ZIP)', accept='.pdf,.zip')
 
-    # Save dummy
+    # Save dummy with uploader tag
     ASSIGNMENTS.setdefault(course, {}) \
                .setdefault(section, []) \
                .append({
         'title': title,
         'description': description,
         'due_date': due_date,
-        'file': attachment['filename']
+        'file': attachment['filename'],
+        'uploaded_by': user_email,
+        'uploaded_at': date.today().isoformat()
     })
 
     # Confirmation screen
     clear()
-    put_text(f"✅ Assignment '{title}' uploaded for {course} (Sec {section})")
+    put_text(f"✅ {user_email} uploaded assignment '{title}' for {course} (Sec {section})")
     put_buttons([
         '🔙 Back to Assignments',
         '🏠 Back to Dashboard'
     ], onclick=[
-        lambda: upload_assignments(back_to_dashboard),
+        lambda: upload_assignments(back_to_dashboard, user_email),
         back_to_dashboard
     ])
 
 
-def upload_assignments(back_to_dashboard):
+def upload_assignments(back_to_dashboard, user_email):
     """Dashboard listing courses × sections for assignment upload."""
     clear()
     put_markdown('# 📚 Upload Assignments')
     rows = []
     for course, sections in dummy_faculty_courses.items():
         for section in sections:
-            # capture course and section in lambda, and pass back_to_dashboard
             rows.append([
                 course,
                 section,
                 put_buttons([
                     'Upload'
                 ], onclick=[
-                    lambda c=course, s=section: handle_upload_assignment(c, s, back_to_dashboard)
+                    lambda c=course, s=section: handle_upload_assignment(c, s, back_to_dashboard, user_email)
                 ])
             ])
     put_table([['Course', 'Section', 'Action'], *rows])
