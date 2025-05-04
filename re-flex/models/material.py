@@ -1,16 +1,15 @@
 import sqlite3
 
-def create_assignment_table(conn):
+def create_material_table(conn):
     # Create the table.
     conn.execute('''
-    CREATE TABLE Assignment (
+    CREATE TABLE Material (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         facultyid INTEGER,
         course TEXT,
         section TEXT,
         title TEXT,
         description TEXT,
-        due_date DATE,
         file BLOB,
         FOREIGN KEY (facultyid) REFERENCES Faculty(id)
     );
@@ -20,7 +19,8 @@ def create_assignment_table(conn):
     with open('C:\\Users\\Hadi\\Downloads\\resume - hadiyatanveer.pdf', 'rb') as file:
         file_data = file.read()
         
-    assignments = [
-        (2, 'CS101', 'A', 'Assignment 1', 'Learn to make user stories.', '2025-05-10', file_data)
+    materials = [
+        (2, 'CS101', 'A', 'Assignment 1 Guide', 'This is the reference material to understand the assignment 01.', file_data)
     ]
-    conn.executemany('INSERT INTO Assignment (facultyid, course, section, title, description, due_date, file) VALUES (?, ?, ?, ?, ?, ?, ?)', assignments)
+    
+    conn.executemany('INSERT INTO Assignment (facultyid, course, section, title, description, file) VALUES (?, ?, ?, ?, ?, ?)', materials)
