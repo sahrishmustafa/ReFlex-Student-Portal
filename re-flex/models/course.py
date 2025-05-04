@@ -7,16 +7,17 @@ def create_course_table(conn):
         courseid TEXT PRIMARY KEY,
         title TEXT,
         credithours INTEGER,
-        description TEXT
+        description TEXT, 
+        semester INTEGER
     )
     ''')
 
     courses = [
-        ('CS101', 'Intro to CS', 3, 'Basics of Computer Science'),
-        ('MATH201', 'Calculus', 4, 'Differential and Integral Calculus')
+        ('CS101', 'Intro to CS', 3, 'Basics of Computer Science', 1),
+        ('MATH201', 'Calculus', 4, 'Differential and Integral Calculus', 1)
     ]
     
-    conn.executemany('INSERT INTO Course VALUES (?, ?, ?, ?)', courses)
+    conn.executemany('INSERT INTO Course VALUES (?, ?, ?, ?, ?)', courses)
 
 def create_faculty_course_table(conn):
     conn.execute('''
