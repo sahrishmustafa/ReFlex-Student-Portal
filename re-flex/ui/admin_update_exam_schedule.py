@@ -2,51 +2,51 @@ from pywebio.input  import input
 from pywebio.output import put_markdown, put_text, put_table, put_buttons, clear
 from datetime       import datetime
 
-# Dummy semesters
-SEMESTERS = ['Spring 2025', 'Fall 2025']
+# Dummy sessions
+EXAM_SESSIONS = ['Midterm', 'Final']
 
-# In-memory timetable store
-# Structure: { semester: { 'schedule': str, 'set_by': email, 'set_at': timestamp } }
-timetables = {}
+# In-memory exam schedule
+# Structure: { session: { 'details': str, 'set_by': email, 'set_at': timestamp } }
+EXAM_SCHEDULE = {}
 
-
-def handle_manage_timetable(semester, back_to_dashboard, user_email):
-    """Create or update timetable for a semester, then confirm."""
+def handle_update_exam(session, back_to_dashboard, user_email):
+    """Update schedule for a session, then confirm."""
     clear()
-    put_markdown(f"### 🗓 Manage Timetable: {semester} (by {user_email})")
-    schedule = input('Enter schedule (e.g., CS101 Mon 9-11; MATH201 Tue 10-12)')
+    put_markdown(f"### 📝 Update Exam Schedule: {session} (by {user_email})")
+    details   = input('Enter details (e.g., CS101 2025-05-10 10:00 Room 101)')
     timestamp = datetime.now().isoformat()
-    timetables[semester] = {
-        'schedule': schedule,
+    EXAM_SCHEDULE[session] = {
+        'details': details,
         'set_by': user_email,
         'set_at': timestamp
     }
 
     clear()
-    put_text(f"✅ Timetable for {semester} set by {user_email} at {timestamp}.")
+    put_text(f"✅ {session} schedule set by {user_email} at {timestamp}.")
     put_buttons(
-        ['🔙 Back to Timetables', '🏠 Back to Dashboard'],
+        ['🔙 Back to Exam Schedules', '🏠 Back to Dashboard'],
         onclick=[
-            lambda: manage_timetables(back_to_dashboard, user_email),
+            lambda: update_exam_schedule(back_to_dashboard, user_email),
             back_to_dashboard
         ]
     )
 
-
-def manage_timetables(back_to_dashboard, user_email):
-    """Dashboard listing semesters for timetable management."""
+def update_exam_schedule(back_to_dashboard, user_email):
+    """Dashboard listing exam sessions for schedule updates."""
     clear()
-    put_markdown('# 📋 Manage Timetables')
+    put_markdown('# 📅 Update Exam Schedules')
     rows = []
-    for sem in SEMESTERS:
-        entry = timetables.get(sem, {})
-        sched = entry.get('schedule', 'Not set')
-        by    = entry.get('set_by', '—')
-        at    = entry.get('set_at', '—')
+    for sess in EXAM_SESSIONS:
+        entry = EXAM_SCHEDULE.get(sess, {})
+        details = entry.get('details', 'Not set')
+        by      = entry.get('set_by', '—')
+        at      = entry.get('set_at', '—')
         rows.append([
-            sem,
-            sched,
+            sess,
+            f"{details}",
             f"By: {by}\nAt: {at}",
-            put_buttons(['Edit'], onclick=[lambda s=sem: handle_manage_timetable(s, back_to_dashboard, user_email)])
+            put_buttons(['Edit'], onclick=[
+                lambda s=sess: handle_update_exam(s, back_to_dashboard, user_email)
+            ])
         ])
-    put_table([['Semester', 'Schedule', 'Info', 'Action'], *rows])
+    put_table([['Session','Details','Info','Action'], *rows])
