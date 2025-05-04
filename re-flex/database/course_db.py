@@ -68,3 +68,13 @@ def get_students_in_sections(courseid):
 
     conn.close()
     return students
+
+def insert_course(courseid, title, credithours, description, semester):
+    conn = sqlite3.connect('reflex.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO Course (courseid, title, credithours, description, semester)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (courseid, title, credithours, description, semester))
+    conn.commit()
+    conn.close()
