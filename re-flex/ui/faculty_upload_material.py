@@ -1,5 +1,8 @@
+# ui/faculty_upload_materials.py
+
 from pywebio.input    import file_upload
 from pywebio.output   import put_markdown, put_text, put_table, put_buttons, clear
+from datetime         import datetime
 
 # Dummy data for courses and sections
 dummy_faculty_courses = {
@@ -12,32 +15,39 @@ dummy_faculty_courses = {
 COURSE_MATERIALS = {}
 
 
-def handle_upload_course_material(course, section, back_to_dashboard):
+def handle_upload_course_material(course, section, back_to_dashboard, user_email):
     """Handle file upload and show confirmation."""
-    put_markdown(f"### 📂 Upload Materials for {course} (Sec {section})")
+    put_markdown(f"### 📂 Upload Materials for {course} (Sec {section}) by {user_email}")
     materials = file_upload(
         'Select Files (PDF, PPTX, DOCX)',
         accept='.pdf,.pptx,.docx',
         multiple=True
     )
 
+    timestamp = datetime.now().isoformat()
+    entries = [{
+        'file': m['filename'],
+        'uploaded_by': user_email,
+        'uploaded_at': timestamp
+    } for m in materials]
+
     COURSE_MATERIALS.setdefault(course, {}) \
                     .setdefault(section, []) \
-                    .extend([m['filename'] for m in materials])
+                    .extend(entries)
 
     # Confirmation screen
     clear()
-    put_text(f"✅ Materials for {course} (Sec {section}) Uploaded Successfully!")
+    put_text(f"✅ {len(entries)} file(s) uploaded for {course} (Sec {section}) by {user_email}")
     put_buttons(
         ['🔙 Back to Materials', '🏠 Back to Dashboard'],
         onclick=[
-            lambda: upload_course_materials(back_to_dashboard),
+            lambda: upload_course_materials(back_to_dashboard, user_email),
             back_to_dashboard
         ]
     )
 
 
-def upload_course_materials(back_to_dashboard):
+def upload_course_materials(back_to_dashboard, user_email):
     """Display dashboard of courses × sections with upload actions."""
     clear()
     put_markdown('# 📚 Upload Course Materials')
@@ -49,7 +59,7 @@ def upload_course_materials(back_to_dashboard):
                 sec,
                 put_buttons(
                     ['Upload'],
-                    onclick=[lambda c=course, s=sec: handle_upload_course_material(c, s, back_to_dashboard)]
+                    onclick=[lambda c=course, s=sec: handle_upload_course_material(c, s, back_to_dashboard, user_email)]
                 )
             ])
     put_table([['Course', 'Section', 'Action'], *rows])
