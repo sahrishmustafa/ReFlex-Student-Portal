@@ -1,70 +1,69 @@
-# ui/faculty_mark_attendance.py
-
-from pywebio.input    import checkbox
-from pywebio.output   import put_markdown, put_text, put_buttons, put_table, clear
 from datetime         import date
+from pywebio.input    import input, select, input_group
+from pywebio.output   import put_markdown, put_text, put_buttons, put_table, clear
 
-# Dummy course→sections mapping
-dummy_faculty_courses = {
-    'CS101 - Intro to Programming': ['A', 'B'],
-    'MATH201 - Calculus II':             ['A'],
-    'ENG305 - Technical Writing':        ['A', 'C'],
-}
+from database.course_db import get_faculty_courses_and_sections
+from database.course_db import get_students_in_sections
+from database.attendance_db import insert_attendance
 
-# Dummy section-specific student emails
-dummy_students = {
-    'CS101 - Intro to Programming': {'A': ['alice@example.com','bob@example.com'], 'B': ['charlie@example.com']},
-    'MATH201 - Calculus II':             {'A': ['david@example.com','eva@example.com']},
-    'ENG305 - Technical Writing':        {'A': ['frank@example.com'], 'C': ['grace@example.com','hannah@example.com']},
-}
-
-# In-memory attendance store
-ATTENDANCE = {}
-
-
-def handle_mark_attendance(course, section, back_to_dashboard, user_email):
-    """Mark present/absent for one lecture, then show confirmation."""
+def handle_mark_attendance(course, section, back_to_dashboard, faculty_id):
+    # Mark present/absent for one lecture, then show confirmation.
     put_markdown(f"### 🗓️ Mark Attendance for {course} (Sec {section})")
-    lecture_date = date.today().isoformat()
-    present      = checkbox('Select Present Students', dummy_students[course][section])
+    
+    # Fetch list of students in the course and section
+    STUDENTS = get_students_in_sections(course)
+    students_in_section = STUDENTS.get(course, {}).get(section, [])
+    
+    if not students_in_section:
+        put_text("No students found in this section.")
+        return
+    
+    # Input for lecture date (using PyWebIO's `input` with `type="date"`)
+    lecture_date = input("Enter the lecture date", type="date")
+    
+    # Create a list of form fields for attendance status
+    form_fields = []
+    for student in students_in_section:
+        # Add a select field for each student to choose attendance status
+        form_fields.append(
+            select(f"Attendance for {student}", ['Present', 'Absent', 'Late'], name=f'{student}_attendance')
+        )
 
-    # Save dummy with email tag
-    ATTENDANCE.setdefault(course, {}) \
-              .setdefault(section, {})[lecture_date] = {
-        'present': present,
-        'marked_by': user_email
-    }
+    # Create a form to collect all attendance status selections
+    form_data = input_group("Mark Attendance", form_fields)
 
-    # Compute absent
-    absent = [s for s in dummy_students[course][section] if s not in present]
+    # Process each student's attendance selection and insert it into the database
+    for student, status in form_data.items():      
+        # Insert the attendance data into the database for the student
+        insert_attendance(faculty_id, student, course, section, lecture_date, status)
+    
 
     # Confirmation + back
     clear()
-    put_text(f"✅ Attendance on {lecture_date} updated for {course} (Sec {section}) by {user_email}")
-    put_text(f"• Present: {', '.join(present) or '—'}")
-    put_text(f"• Absent:  {', '.join(absent)  or '—'}")
+    put_text(f"✅ Attendance on {lecture_date} updated for {course} (Sec {section})")
+    
+    # Buttons for navigation
     put_buttons(
         ['🔙 Back to Attendance', '🏠 Back to Dashboard'],
-        onclick=[
-            lambda: mark_attendance(back_to_dashboard, user_email),
-            back_to_dashboard
-        ]
+        onclick=[lambda: mark_attendance(back_to_dashboard, faculty_id), back_to_dashboard]
     )
 
-
-def mark_attendance(back_to_dashboard, user_email):
-    """Dashboard listing course×section for attendance marking."""
+def mark_attendance(back_to_dashboard, faculty_id):
+    # Dashboard listing course×section for attendance marking.
     clear()
     put_markdown('# ✅ Mark Attendance')
+
+    faculty_courses = get_faculty_courses_and_sections(faculty_id)
+
     rows = []
-    for course, secs in dummy_faculty_courses.items():
+    for course, secs in faculty_courses.items():
         for sec in secs:
             rows.append([
                 course,
                 sec,
                 put_buttons(
                   ['Mark'],
-                  onclick=[lambda c=course, s=sec: handle_mark_attendance(c, s, back_to_dashboard, user_email)]
+                  onclick=[lambda c=course, s=sec: handle_mark_attendance(c, s, back_to_dashboard, faculty_id)]
                 )
             ])
     put_table([['Course', 'Section', 'Action'], *rows])
