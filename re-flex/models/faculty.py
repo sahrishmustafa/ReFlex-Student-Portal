@@ -3,7 +3,7 @@ import sqlite3
 def create_faculty_table(conn):
     # Create the table.
     conn.execute('''
-        CREATE TABLE IF NOT EXISTS Faculty (
+        CREATE TABLE Faculty (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL

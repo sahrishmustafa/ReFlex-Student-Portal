@@ -16,7 +16,7 @@ def create_material_table(conn):
 
     ''')
 
-    with open("manual.pdf", 'rb') as file:
+    with open('C:\\Users\\Hadi\\Downloads\\resume - hadiyatanveer.pdf', 'rb') as file:
         file_data = file.read()
         
     materials = [

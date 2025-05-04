@@ -37,6 +37,8 @@ def create_faculty_course_table(conn):
     ]
     conn.executemany('INSERT INTO Faculty_Course VALUES (?, ?, ?)', faculty_course)
 
+
+
 def create_student_course_table(conn):
     conn.execute('''
     CREATE TABLE Student_Course (
