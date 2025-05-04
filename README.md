@@ -17,10 +17,9 @@ Welcome to the **Student Portal** repository. This project aims to develop a web
 
 ## Project Structure (To Be Defined)
 The repository will follow a structured approach:
-- `/backend/` - Server-side code (APIs, Database, Business Logic)
-- `/frontend/` - UI and UX implementation
-- `/docs/` - Documentation and meeting notes
-- `/tests/` - Automated tests and testing scripts
+- `/ui/` - Pages, front end
+- `/models/` - Model classes
+- `/database/` - Database queries 
 
 Note: The repository structure mentioned above may change in each sprint.
 
