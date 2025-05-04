@@ -1,11 +1,15 @@
 from pywebio.output import put_markdown, put_buttons, put_text, clear, put_file
-from database.student_db import get_course_materials  # This should return a list of dicts with 'course', 'filename', 'content'
+
+from database.material_db import get_course_materials  
+from database.student_db import get_registered_courses_for_student
 
 def download_materials(user_email, go_back_callback):
     clear()
     put_markdown(f"## 📥 Download Course Materials")
 
-    materials = get_course_materials(user_email)
+    registered_courses = get_registered_courses_for_student(user_email)
+    print(registered_courses)
+    materials = get_course_materials(registered_courses)
 
     if not materials:
         put_text("No materials available to download.")

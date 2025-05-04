@@ -11,20 +11,16 @@ def handle_upload_course_material(course, section, back_to_dashboard, faculty_id
     """Handle file upload and show confirmation."""
     put_markdown(f"### 📂 Upload Materials for {course} (Sec {section}) by {faculty_id}")
     
-    title       = input('Assignment Title')
+    title       = input('Material Title')
     description = textarea('Description', rows=3)
-    materials = file_upload(
-        'Select Files (PDF, PPTX, DOCX)',
-        accept='.pdf,.pptx,.docx',
-        multiple=True
-    )
-
+    materials = file_upload('Select Files (PDF, PPTX, DOCX)', accept='.pdf')
+    
     # Insert the data. 
     insert_material(faculty_id, course, section, title, description, materials)
 
     # Confirmation screen
     clear()
-    put_text(f"✅ {len(entries)} file(s) uploaded for {course} (Sec {section}) by {faculty_id}")
+    put_text(f"✅Done")
     put_buttons(
         ['🔙 Back to Materials', '🏠 Back to Dashboard'],
         onclick=[
