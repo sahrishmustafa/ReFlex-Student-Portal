@@ -8,7 +8,6 @@ from models.faculty import create_faculty_table
 from models.student import create_student_table
 from models.users import create_registered_users
 from models.requests import create_request_table
-from models.adminmaterial import create_adminmaterial_table
 from models.material import create_material_table
 from models.studentquery import create_query_table
 from models.attendance import create_attendance_table
@@ -25,7 +24,6 @@ def init_db():
     create_faculty_table(c)
     create_admin_table(c)
     create_course_table(c)
-    create_adminmaterial_table(c)
     create_section_table(c)
     create_grades_table(c)
     create_query_table(c)

@@ -20,7 +20,7 @@ def handle_respond_query(q, back_to_dashboard, STUDENT_QUERIES, faculty_id):
         '🏠 Back to Dashboard'
     ], onclick=[
         lambda: respond_student_queries(back_to_dashboard, faculty_id),
-        back_to_dashboard
+        back_to_dashboard(faculty_id)
     ])
 
 
@@ -34,7 +34,11 @@ def respond_student_queries(back_to_dashboard, faculty_id):
     
     if not STUDENT_QUERIES:
         put_text('No pending queries!')
-        return
+        
+        put_buttons(
+            ['Back to Dashboard'],
+            onclick=[lambda: back_to_dashboard(faculty_id)]
+        )
 
     rows = []
     for q in STUDENT_QUERIES:
@@ -43,8 +47,8 @@ def respond_student_queries(back_to_dashboard, faculty_id):
             put_buttons([
                 'Reply'
             ], onclick=[
-                lambda qq=q: handle_respond_query(qq, back_to_dashboard, STUDENT_QUERIES)
+                lambda qq=q: handle_respond_query(qq, back_to_dashboard, STUDENT_QUERIES, faculty_id)
             ])
         ])
 
-    put_table([['ID', 'Course', 'Section', 'Student', 'Query', 'Action'], *rows])
+    if STUDENT_QUERIES: put_table([['ID', 'Course', 'Section', 'Student', 'Query', 'Action'], *rows])

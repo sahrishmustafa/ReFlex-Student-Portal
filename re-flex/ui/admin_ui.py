@@ -8,7 +8,7 @@ def admin_dashboard(user_email):
     from ui.admin_handle_requests       import handle_requests
     from database.admin_db              import get_admin_id_by_email
 
-    admin_id = int(get_admin_id_by_email(user_email))
+    admin_id = user_email if isinstance(user_email, int) else int(get_admin_id_by_email(user_email))
 
     clear()
     put_markdown('# 🛡️ Admin Dashboard')

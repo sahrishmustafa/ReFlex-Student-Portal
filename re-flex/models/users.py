@@ -15,9 +15,9 @@ def create_registered_users(conn):
     conn.executescript('''
     -- Insert Students
     INSERT INTO RegisteredUsers (email, password, role) VALUES 
-    ('i220977@gmail.com', 'sahrish', 'Student'),
-    ('i221033@gmail.com', 'maria', 'Student'),
-    ('i221113@gmail.com', 'hadiya', 'Student'),
+    ('i220977@nu.edu.pk', 'sahrish', 'Student'),
+    ('i221033@nu.edu.pk', 'maria', 'Student'),
+    ('i221113@nu.edu.pk', 'hadiya', 'Student'),
     ('student4@example.com', 'hashed_password_4', 'Student'),
     ('student5@example.com', 'hashed_password_5', 'Student');
 
@@ -31,9 +31,9 @@ def create_registered_users(conn):
 
     -- Insert Admins
     INSERT INTO RegisteredUsers (email, password, role) VALUES 
-    ('admin1@example.com', 'hashed_password_11', 'Admin'),
-    ('admin2@example.com', 'hashed_password_12', 'Admin'),
-    ('admin3@example.com', 'hashed_password_13', 'Admin'),
+    ('hadiyatanveer13@gmail.com', 'hadiya', 'Admin'),
+    ('sahrish@example.com', 'sahrish', 'Admin'),
+    ('maria@example.com', 'maria', 'Admin'),
     ('admin4@example.com', 'hashed_password_14', 'Admin'),
     ('admin5@example.com', 'hashed_password_15', 'Admin');
     ''')

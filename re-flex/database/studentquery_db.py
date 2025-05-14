@@ -38,3 +38,15 @@ def update_student_query_answer(query_id, answer):
 
     conn.commit()
     conn.close()
+
+def insert_student_query(facultyid, studentid, courseid, sectionid, query_text):
+    conn = sqlite3.connect('reflex.db')
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    INSERT INTO StudentQuery (facultyid, studentid, courseid, sectionid, query)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (facultyid, studentid, courseid, sectionid, query_text))
+    
+    conn.commit()
+    conn.close()

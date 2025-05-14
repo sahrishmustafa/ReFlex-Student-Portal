@@ -2,7 +2,7 @@ import sqlite3
 
 def insert_request(studentid, request_type, detail):
     # Connect to the SQLite database
-    conn = sqlite3.connect('reflex.db')  # Replace with your database path
+    conn = sqlite3.connect('reflex.db')  
     cursor = conn.cursor()
 
     # SQL query to insert a new request

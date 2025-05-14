@@ -6,7 +6,7 @@ def faculty_dashboard(faculty_email):
     from ui import faculty_upload_assignments, faculty_enter_grades, faculty_mark_attendance, faculty_upload_material, faculty_answer_queries
     from database.faculty_db import get_faculty_id_by_email
 
-    faculty_id = int(get_faculty_id_by_email(faculty_email))
+    faculty_id = faculty_email if isinstance(faculty_email, int) else int(get_faculty_id_by_email(faculty_email))
 
     clear()
     put_markdown('# 👨‍🏫 Faculty Dashboard')

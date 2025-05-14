@@ -12,7 +12,7 @@ def handle_enter_grade(course, section, back_to_dashboard, faculty_id):
     
     STUDENTS = get_students_in_sections(course)
     
-    student_id    = select('Student', STUDENTS[course][section])
+    student_id  = select('Student', STUDENTS[course][section])
     grade_type = select('Grade Type', ['Assignment', 'Quiz', 'Exam'])
     totalmarks = input('Total Marks (numeric)', type=NUMBER)
     marks      = input('Marks (numeric)', type=NUMBER)
@@ -27,9 +27,10 @@ def handle_enter_grade(course, section, back_to_dashboard, faculty_id):
         ['🔙 Back to Grade Entry', '🏠 Back to Dashboard'],
         onclick=[
             lambda: enter_student_grades(back_to_dashboard, faculty_id),
-            back_to_dashboard
+            back_to_dashboard(faculty_id)
         ]
     )
+
 
 
 def enter_student_grades(back_to_dashboard, faculty_id):

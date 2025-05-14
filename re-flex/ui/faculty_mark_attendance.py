@@ -45,7 +45,8 @@ def handle_mark_attendance(course, section, back_to_dashboard, faculty_id):
     # Buttons for navigation
     put_buttons(
         ['🔙 Back to Attendance', '🏠 Back to Dashboard'],
-        onclick=[lambda: mark_attendance(back_to_dashboard, faculty_id), back_to_dashboard]
+        onclick=[lambda: mark_attendance(back_to_dashboard, faculty_id), 
+                 lambda: back_to_dashboard(faculty_id)]
     )
 
 def mark_attendance(back_to_dashboard, faculty_id):

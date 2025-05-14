@@ -7,17 +7,13 @@ from pywebio.output import put_text, put_error, put_success, clear
 
 from models.__init__ import init_db
 
+from ui.admin_ui import admin_dashboard
 from ui.faculty_ui import faculty_dashboard
+from ui.student_ui import student_dashboard
 
 if not os.path.exists('reflex.db'):
     init_db()
 
-# Note: Placeholders, will be replaced later on.
-def student_dashboard(email):
-    put_text(f"Welcome, {email}! This is your Student Dashboard.")
-
-def admin_dashboard(email):
-    put_text(f"Welcome, {email}! This is your Admin Dashboard.")
 
 def login():
     user_input = input_group("Login", [
@@ -52,8 +48,9 @@ def login():
     else:
         put_error("User not found.")
 
-# def main():
-#     faculty_dashboard("imran.ashraf@gmail.com")
+def login_pseudo():
+    # student_dashboard('i220977@nu.edu.pk')
+    admin_dashboard('hadiyatanveer13@gmail.com')
 
 if __name__ == "__main__":
-    start_server(login, port=8080)
+    start_server(login_pseudo, port=8080)

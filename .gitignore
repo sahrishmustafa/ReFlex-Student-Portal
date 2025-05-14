@@ -1,1 +1,4 @@
 venv/
+re-flex/database/__pycache__
+re-flex/ui/__pycache__
+re-flex/models/__pycache__

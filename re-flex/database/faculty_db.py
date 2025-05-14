@@ -18,3 +18,21 @@ def get_faculty_id_by_email(faculty_email):
         # If not found, return None or handle it as needed
         print("Faculty email not found.")
         return None
+    
+
+def get_faculty_by_course_section(courseid, sectionid):
+    import sqlite3
+    conn = sqlite3.connect('reflex.db')
+    cursor = conn.cursor()
+
+    query = '''
+        SELECT F.id
+        FROM Faculty F
+        JOIN Faculty_Course FC ON F.id = FC.facultyid
+        WHERE FC.courseid = ? AND FC.sectionid = ?;
+    '''
+    cursor.execute(query, (courseid, sectionid))
+    result = cursor.fetchone()
+    conn.close()
+    return result[0] if result else None
+

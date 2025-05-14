@@ -27,7 +27,7 @@ def handle_upload_assignment(course, section, back_to_dashboard, faculty_id):
         '🏠 Back to Dashboard'
     ], onclick=[
         lambda: upload_assignments(back_to_dashboard, faculty_id),
-        back_to_dashboard
+        lambda: back_to_dashboard(faculty_id)
     ])
 
 

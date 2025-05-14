@@ -22,7 +22,7 @@ def handle_request(req, back_to_dashboard, user_email):
         '🔙 Back to Requests', '🏠 Back to Dashboard'
     ], onclick=[
         lambda: handle_requests(back_to_dashboard, user_email),
-        back_to_dashboard
+        lambda: back_to_dashboard(user_email)
     ])
 
 

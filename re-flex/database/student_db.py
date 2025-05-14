@@ -32,6 +32,18 @@ def register_student_to_course(student_email, course_id, section_id):
     conn.commit()
     conn.close()
 
+def get_student_id_by_email(student_email):
+    conn = sqlite3.connect('reflex.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id FROM Student WHERE email = ?", (student_email,))
+    result = cursor.fetchone()
+
+    conn.close()
+    
+    # Return the ID if found, else None
+    return result[0] if result else None
+
 
 def get_registered_courses_for_student(student_email):
     # Connect to the database
@@ -150,10 +162,6 @@ def get_attendance_data(student_email):
     conn.close()
 
     return result
-
-def submit_feedback(user_email, feedback_text):
-    # Just print to console for now (simulate storing it)
-    print(f"Feedback received from {user_email}: {feedback_text}")
 
 
 def get_academic_calendar():

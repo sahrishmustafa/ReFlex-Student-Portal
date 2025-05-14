@@ -24,8 +24,8 @@ def handle_upload_course_material(course, section, back_to_dashboard, faculty_id
     put_buttons(
         ['🔙 Back to Materials', '🏠 Back to Dashboard'],
         onclick=[
-            lambda: upload_course_materials(back_to_dashboard, user_email),
-            back_to_dashboard
+            lambda: upload_course_materials(back_to_dashboard, faculty_id),
+            lambda: back_to_dashboard(faculty_id)
         ]
     )
 

@@ -1,6 +1,6 @@
 from datetime       import datetime
 from pywebio.input  import textarea, input, NUMBER, input_group, select
-from pywebio.output import put_markdown, put_text, put_table, put_buttons, clear
+from pywebio.output import put_markdown, put_text, put_table, put_buttons, clear, put_error
 
 from database.course_db import insert_course
 from database.section_db import insert_section
@@ -12,12 +12,32 @@ def handle_publish_offerings(semester_number, back_to_dashboard, user_email):
         put_markdown(f"### 📢 Publish Course Offering: Semester {semester_number} (by {user_email})")
 
         # Input for course details
-        course_data = input_group("📘 Enter Course Details", [
-            input('Course ID', name='courseid'),
-            input('Course Title', name='title'),
-            input('Credit Hours', name='credithours', type=NUMBER),
-            textarea('Course Description', name='description', rows=3)
-        ])
+        while True:
+            try:
+                course_data = input_group("📘 Enter Course Details", [
+                    input('Course ID', name='courseid', required=True),
+                    input('Course Title', name='title', required=True),
+                    input('Credit Hours', name='credithours', type=NUMBER, required=True),
+                    textarea('Course Description', name='description', rows=3, required=True)
+                ])
+
+                # Custom validation
+                if not course_data['courseid'].strip():
+                    raise ValueError("Course ID cannot be empty.")
+
+                if not course_data['title'].strip():
+                    raise ValueError("Course Title cannot be empty.")
+
+                if course_data['credithours'] <= 0:
+                    raise ValueError("Credit Hours must be a positive number.")
+
+                if not course_data['description'].strip():
+                    raise ValueError("Course Description cannot be empty.")
+
+                break  # ✅ Valid input, exit loop
+
+            except ValueError as ve:
+                put_error(f"❌ Input Error: {ve}. Please correct and try again.")
 
         courseid     = course_data['courseid']
         title        = course_data['title']
@@ -66,3 +86,5 @@ def publish_course_offerings(back_to_dashboard, user_email):
             ])
         ])
     put_table([['Semester', 'Course'], *rows])
+
+    put_buttons(['🔙 Back to Dashboard'], onclick=[lambda: back_to_dashboard(user_email)])
